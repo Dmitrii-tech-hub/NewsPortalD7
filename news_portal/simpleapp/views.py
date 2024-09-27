@@ -1,8 +1,9 @@
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
 from .models import Post
 from .forms import PostForm
-from django.urls import reverse_lazy
 
+# News List View
 class NewsListView(ListView):
     model = Post
     template_name = 'news_list.html'
@@ -10,6 +11,85 @@ class NewsListView(ListView):
     queryset = Post.objects.filter(type='NW')  # Filter for news posts
     paginate_by = 10  # Number of posts per page
 
+# News Detail View
+class NewsDetailView(DetailView):
+    model = Post
+    template_name = 'news_detail.html'
+    context_object_name = 'post'
+
+# News Create View
+class NewsCreateView(CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'news_create.html'
+    success_url = reverse_lazy('news_list')
+
+    def form_valid(self, form):
+        post = form.save(commit=False)
+        post.type = 'NW'  # Set post type to News
+        post.save()
+        return super().form_valid(form)
+
+# News Update View
+class NewsUpdateView(UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'news_edit.html'
+    success_url = reverse_lazy('news_list')
+
+    def form_valid(self, form):
+        post = form.save(commit=False)
+        post.type = 'NW'  # Ensure the type remains News
+        post.save()
+        return super().form_valid(form)
+
+# News Delete View
+class NewsDeleteView(DeleteView):
+    model = Post
+    template_name = 'news_confirm_delete.html'
+    context_object_name = 'post'
+    success_url = reverse_lazy('news_list')
+
+    def get_queryset(self):
+        return Post.objects.filter(type='NW')  # Only delete News posts
+
+# Article Create View
+class ArticleCreateView(CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'article_create.html'
+    success_url = reverse_lazy('news_list')
+
+    def form_valid(self, form):
+        post = form.save(commit=False)
+        post.type = 'AR'  # Set post type to Article
+        post.save()
+        return super().form_valid(form)
+
+# Article Update View
+class ArticleUpdateView(UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'article_edit.html'
+    success_url = reverse_lazy('news_list')
+
+    def form_valid(self, form):
+        post = form.save(commit=False)
+        post.type = 'AR'  # Ensure the type remains Article
+        post.save()
+        return super().form_valid(form)
+
+# Article Delete View
+class ArticleDeleteView(DeleteView):
+    model = Post
+    template_name = 'article_confirm_delete.html'
+    context_object_name = 'post'
+    success_url = reverse_lazy('news_list')
+
+    def get_queryset(self):
+        return Post.objects.filter(type='AR')  # Only delete Article posts
+
+# Search View
 class SearchView(ListView):
     model = Post
     template_name = 'news_search.html'
@@ -29,56 +109,3 @@ class SearchView(ListView):
             queryset = queryset.filter(created_at__date__gt=after_date)
 
         return queryset
-
-class NewsDetailView(DetailView):
-    model = Post
-    template_name = 'news_detail.html'
-    context_object_name = 'post'
-
-class NewsCreateView(CreateView):
-    model = Post
-    form_class = PostForm
-    template_name = 'news_create.html'
-    success_url = reverse_lazy('news_list')  # Redirect after successful creation
-
-    def form_valid(self, form):
-        post = form.save(commit=False)
-        post.type = 'NW'  # Set type to News
-        post.save()
-        return super().form_valid(form)
-
-class NewsUpdateView(UpdateView):
-    model = Post
-    form_class = PostForm
-    template_name = 'news_edit.html'
-    success_url = reverse_lazy('news_list')  # Redirect after successful update
-
-    def form_valid(self, form):
-        post = form.save(commit=False)
-        post.type = 'NW'  # Ensure the type remains News
-        post.save()
-        return super().form_valid(form)
-
-class ArticleCreateView(CreateView):
-    model = Post
-    form_class = PostForm
-    template_name = 'article_create.html'
-    success_url = reverse_lazy('news_list')  # Redirect after successful creation
-
-    def form_valid(self, form):
-        post = form.save(commit=False)
-        post.type = 'AR'  # Set type to Article
-        post.save()
-        return super().form_valid(form)
-
-class ArticleUpdateView(UpdateView):
-    model = Post
-    form_class = PostForm
-    template_name = 'article_edit.html'
-    success_url = reverse_lazy('news_list')  # Redirect after successful update
-
-    def form_valid(self, form):
-        post = form.save(commit=False)
-        post.type = 'AR'  # Ensure the type remains Article
-        post.save()
-        return super().form_valid(form)
