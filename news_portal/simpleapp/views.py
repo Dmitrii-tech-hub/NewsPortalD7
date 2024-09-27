@@ -1,7 +1,7 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from .models import Post
-from .forms import PostForm
+from .forms import PostForm 
 
 # News List View
 class NewsListView(ListView):
